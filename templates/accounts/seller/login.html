@@ -1,54 +1,41 @@
 {% extends 'layout/base_fullscreen.html' %}
 {% load static %}
 
-
 {% block head %}{% endblock %}
 
 {% block content %}
-<main>
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-4 col-md-8 mx-auto">
-                <form method="post" class="card shadow-lg">
-                    <!-- {% csrf_token %} -->
-                    <div class="card-header text-center bg-dark text-light">
-                        <h3>SELLER LOGIN</h3>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 mx-auto">
+            <form method="post" class="card">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="card-title">Seller Login</h4>
+                </div>
+                {% csrf_token %}
+                <div class="card-body">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="username" id="username"
+                            placeholder="Raju Srivastava" />
+                        <label for="username">Username</label>
                     </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control form-control-lg" name="username" id="username"
-                                aria-describedby="userHelp" placeholder="Username" />
-                        </div>
-                        <div class="">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control form-control-lg" name="password" id="password"
-                                aria-describedby="passHelp" placeholder="password" />
-                        </div>
-                        <div class="d_grid text-end">
-                            <a class="fw-bold text-primary nav-link p-2" href="{% url 'register' %}">Forgot Password !</a>
-                        </div>
-                        <div class="d-grid text-center">
-                            
-                            <button class="btn btn-dark">
-                                Login
-                            </button>
-                            <a class="fw-bold text-primary nav-link p-3" href="{% url 'register' %}">Create an account</a>
-                        </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Password" />
+                        <label for="password">Password</label>
                     </div>
-                </form>
-            </div>
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                        <a href="{% url 'seller_register' %}" class="btn btn-link w-100 text-decoration-none">Dont Have a seller Account? Register</a>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
-</main>
+</div>
 {% endblock %}
 
 {% block css %}
 <style>
-    body{
-        background-color: #c3c5c6;
-    }
-    main {
+    main{
         display: grid;
         place-items: center;
         height: 100vh;
@@ -56,4 +43,6 @@
 </style>
 {% endblock %}
 
-{% block js %} <script></script> {% endblock %}
+{% block js %}
+<script></script>
+{% endblock %}
