@@ -2,7 +2,26 @@
 
 {% block head %}{% endblock %}
 {% block content %}
-
+<div class="container">
+    <div class="d-flex">
+        {% for cat in category %}
+        <a href="#" class="btn mx-auto" style="text-decoration: none; border: 2px solid black;">
+            {{ cat.title }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        
+        {% if products %}
+            {% include 'components/product_card.html' %}
+        {% else %}
+        <h2>There are no product</h2>
+        {% endif %}
+            
+    </div>
+</div>
 {% endblock %}
 {% block css %}
 
