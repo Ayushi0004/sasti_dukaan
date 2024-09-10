@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User, Group
 from django.contrib import messages
@@ -17,6 +17,15 @@ def home_view(request):
     }
     return render(request, 'home.html', ctx)
 
+def category_view(request,name):
+    cat = get_object_or_404(Category,slug=name)
+    product = get_list_or_404(Product, category=cat)
+    return render(
+        request, 
+        'category_listing.html',
+        context = {'products': product, 'cat': cat,
+        'category': Category.objects.all() }
+    )
 def detail_view(request,id):
     ctx ={
         'product': Product.objects.get(id=id)
