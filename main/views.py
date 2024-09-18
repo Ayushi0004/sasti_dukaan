@@ -4,6 +4,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from product.models import Product, Category, Review
 from product.forms import ReviewForm
+from .models import SliderImage
 
 def logout_view(request):
     logout(request)
@@ -12,9 +13,12 @@ def logout_view(request):
 def home_view(request):
     products = Product.objects.all()
     categories = Category.objects.all()
+    # get latest 4 slider images
+    slider_images = SliderImage.objects.order_by('-created_at')[:4]
     ctx = {
         'products': products,
-        'categories': categories
+        'categories': categories,
+        'slider_images': slider_images,
     }
     return render(request, 'home.html', ctx)
 
@@ -42,7 +46,7 @@ def detail_view(request, id):
         'reviews': reviews,
         'review_form': ReviewForm(),
     }
-    return render(request, 'details.html', ctx)
+    return render(request, 'detail.html', ctx)
 
 # seller views
 def seller_login_view(request):
@@ -89,3 +93,16 @@ def customer_register_view(request):
 
 def customer_forgot_pass_view(request):
     return render(request, 'accounts/customer/forgot_password.html')
+
+def search_view(request):
+    query = request.GET.get('q')
+    products = Product.objects.filter(title__icontains=query)
+    categories = Category.objects.filter(title__icontains=query)
+    return render(
+        request, 'search.html',
+        context = {
+            'products': products,
+            'categories': categories,
+            'query': query,
+        }
+    )
