@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User, Group
-from django.contrib import messages
 from product.models import Product, Category, Review
+from cart.models import Order, Cart, CartItem
+from django.contrib import messages
 from product.forms import ReviewForm
 from .models import SliderImage
+from django.contrib.auth.decorators import login_required
 
 def logout_view(request):
     logout(request)
@@ -40,11 +42,21 @@ def detail_view(request, id):
     similar_products = Product.objects.filter(category=product.category).exclude(id=id).order_by('?')[:3] # order by random
     # get latest reviews
     reviews = Review.objects.filter(product=product).order_by('-created_at') # reverse order
+    
+    # if user has review product, then allow him to edit
+    review = None
+    if request.user.is_authenticated:
+        review = Review.objects.filter(product=product, customer=request.user).first()
+    if review:
+        review_form = ReviewForm(instance=review)
+    else:
+        review_form = ReviewForm() 
     ctx = {
         'product': product,
         'similar_products': similar_products,
         'reviews': reviews,
-        'review_form': ReviewForm(),
+        'review_form': review_form,
+        'has_reviewed': True if review else False,
     }
     return render(request, 'detail.html', ctx)
 
@@ -106,3 +118,46 @@ def search_view(request):
             'query': query,
         }
     )
+
+def add_review(request, id):
+    product = Product.objects.get(id=id)
+    form = ReviewForm(request.POST)
+    if form.is_valid():
+        review = form.save(commit=False)
+        review.product = product
+        review.customer = request.user
+        review.save()
+        messages.success(request, 'Review added successfully')    
+    else:
+        messages.error(request, 'Invalid Review Details')
+    return redirect('detail', id=id)
+
+def edit_review(request, id):
+    review = Review.objects.get(id=id)
+    form = ReviewForm(request.POST, instance=review)
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Review updated successfully')    
+    else:
+        messages.error(request, 'Invalid Review Details')
+    return redirect('detail', id=review.product.id)
+
+@login_required
+def dashboard_selection_view(request):
+    if request.user.groups.filter(name='seller').exists():
+        return redirect('sdashboard')
+    else:
+        return redirect('cdashboard')
+
+@login_required
+def customer_dashboard_view(request):
+    orders = Order.objects.filter(user=request.user)
+    reviews = Review.objects.filter(customer=request.user)
+    
+    return render(request, 'accounts/customer/dashboard.html', {'orders': orders, 'reviews': reviews})
+
+@login_required
+def seller_dashboard_view(request):
+    products = Product.objects.filter(seller=request.user)
+    orders = Order.objects.filter(product__in=products)
+    return render(request, 'accounts/seller/dashboard.html', {'products': products, 'orders': orders})
